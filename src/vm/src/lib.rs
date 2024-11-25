@@ -1,6 +1,10 @@
+mod assembler;
 mod error;
+mod instructions;
+mod memory;
 mod processor;
 
+use crate::instructions::Instruction;
 use crate::processor::Processor;
 
 use std::collections::BTreeMap;
@@ -9,7 +13,12 @@ use std::sync::{Arc, RwLock};
 #[derive(Debug, Default)]
 /// An encapsulated struct containing the vital processor data and intercommunication.
 struct VmCtx {
-    _hi: usize,
+    memory: Box<[u8]>,
+    // TODO: Figure out whether:
+    //  1. Keep instructions as a seperated slice,
+    //  2. Make an abstraction type for memory,
+    //  3. Transform every instruction into a byte-array and vise-versa.
+    instructions: Box<[Instruction]>,
 }
 
 #[derive(Debug, Default)]
@@ -20,6 +29,25 @@ pub struct Vm {
 }
 
 impl Vm {
+    /// Moves the given [`Instruction`] slice into [`VmCtx`] memory.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Vm;
+    /// let mut vm_inst = Vm::new();
+    /// let instructions = Box::from([/* ... */]);
+    /// vm_inst.load_instructions(instructions);
+    /// ```
+    ///
+    /// # Panics
+    /// Given [`VmCtx`] is poisoned, will panic acknowledging the error.
+    /// ```
+    pub fn load_instructions(&mut self, instructions: Box<[Instruction]>) {
+        let ctx = &mut self.ctx.write().unwrap();
+
+        ctx.instructions = instructions;
+    }
+
     #[must_use]
     /// Finds a new handle for the user climbing incrementally.
     fn find_next_handle(&self) -> usize {
@@ -27,6 +55,7 @@ impl Vm {
             return 0;
         }
 
+        // Go through the processors, create another iterator that skips 1 element, find a gap between indexes.
         let index = self
             .processors
             .iter()
@@ -44,23 +73,39 @@ impl Vm {
 
     #[must_use]
     /// Constructs a new [`Processor`] and returns a unique handle to the [`Processor`].
-    /// # Handle Lifetimes
+    ///
     /// The handle exists with the [`Processor`]. Hence, it shares lifetimes with the [`Vm`].
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Vm;
+    /// let mut vm_inst = Vm::new();
+    /// let mut _prod_idx = vm_inst.new_processor();
+    /// ```
     pub fn new_processor(&mut self) -> usize {
         let index = self.find_next_handle();
 
-        self.processors.insert(index, Processor::new());
+        self.processors.insert(index, Processor::new(&self.ctx));
 
         index
     }
 
     /// Destroys the [`Processor`] at the given index.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Vm;
+    /// let mut vm_inst = Vm::new();
+    /// let mut prod_idx = vm_inst.new_processor();
+    /// vm_inst.destroy_processor(prod_idx);
+    /// ```
     pub fn destroy_processor(&mut self, index: usize) {
         self.processors.remove(&index);
     }
 
     #[must_use]
-    /// Constructs a new VM.
+    /// Constructs a new [`Vm`].
+    ///
     /// # Example
     /// ```
     /// use vm::Vm;
