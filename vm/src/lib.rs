@@ -4,28 +4,29 @@ mod instructions;
 mod memory;
 mod processor;
 
-use crate::instructions::Instruction;
+use crate::instructions::Execute;
 use crate::processor::Processor;
+use crate::error::Error;
 
 use std::collections::BTreeMap;
 use std::sync::{Arc, RwLock};
 
 #[derive(Debug, Default)]
 /// An encapsulated struct containing the vital processor data and intercommunication.
-struct VmCtx {
-    memory: Box<[u8]>,
+pub struct VmCtx {
+    memory: RwLock<Vec<Box<[u8]>>>,
     // TODO: Figure out whether:
     //  1. Keep instructions as a seperated slice,
     //  2. Make an abstraction type for memory,
     //  3. Transform every instruction into a byte-array and vise-versa.
-    instructions: Box<[Instruction]>,
+    instructions: RwLock<Vec<Box<dyn Execute>>>,
 }
 
 #[derive(Debug, Default)]
 /// A unique struct containing the processors and VM context.
 pub struct Vm {
     processors: BTreeMap<usize, Processor>,
-    ctx: Arc<RwLock<VmCtx>>,
+    ctx: Arc<VmCtx>,
 }
 
 impl Vm {
@@ -35,17 +36,18 @@ impl Vm {
     /// ```
     /// use vm::Vm;
     /// let mut vm_inst = Vm::new();
-    /// let instructions = Box::from([/* ... */]);
-    /// vm_inst.load_instructions(instructions);
+    /// let instructions = Vec::from([/* ... */]);
+    /// _ = vm_inst.load_instructions(instructions);
     /// ```
-    ///
-    /// # Panics
-    /// Given [`VmCtx`] is poisoned, will panic acknowledging the error.
-    /// ```
-    pub fn load_instructions(&mut self, instructions: Box<[Instruction]>) {
-        let ctx = &mut self.ctx.write().unwrap();
+    pub fn load_instructions(&mut self, instructions: Vec<Box<dyn Execute>>) -> Result<(), Error> {
+        let ctx = Arc::clone(&self.ctx);
+        let mut guard = ctx.instructions.write().map_err(|_| {
+            Error::InstructionsPoisoned
+        })?;
 
-        ctx.instructions = instructions;
+        *guard = instructions;
+
+        Ok(())
     }
 
     #[must_use]
