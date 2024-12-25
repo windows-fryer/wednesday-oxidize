@@ -1,12 +1,12 @@
-mod assembler;
-mod error;
-mod instructions;
-mod memory;
-mod processor;
+pub mod assembler;
+pub mod error;
+pub mod instructions;
+pub mod memory;
+pub mod processor;
 
+use crate::error::Error;
 use crate::instructions::Execute;
 use crate::processor::Processor;
-use crate::error::Error;
 
 use std::collections::BTreeMap;
 use std::sync::{Arc, RwLock};
@@ -25,8 +25,8 @@ pub struct VmCtx {
 #[derive(Debug, Default)]
 /// A unique struct containing the processors and VM context.
 pub struct Vm {
-    processors: BTreeMap<usize, Processor>,
-    ctx: Arc<VmCtx>,
+    pub processors: BTreeMap<usize, Processor>,
+    pub ctx: Arc<VmCtx>,
 }
 
 impl Vm {
@@ -39,11 +39,15 @@ impl Vm {
     /// let instructions = Vec::from([/* ... */]);
     /// _ = vm_inst.load_instructions(instructions);
     /// ```
+    ///
+    /// # Errors
+    /// When the [`VmCtx`].instructions is poisoned, [`InstructionsPoisoned`] is returned.
     pub fn load_instructions(&mut self, instructions: Vec<Box<dyn Execute>>) -> Result<(), Error> {
         let ctx = Arc::clone(&self.ctx);
-        let mut guard = ctx.instructions.write().map_err(|_| {
-            Error::InstructionsPoisoned
-        })?;
+        let mut guard = ctx
+            .instructions
+            .write()
+            .map_err(|_| Error::InstructionsPoisoned)?;
 
         *guard = instructions;
 

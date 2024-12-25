@@ -32,9 +32,14 @@ impl Processor {
         }
     }
 
+    /// Starts execution on self, locking [`VmCtx`]'s instructions for readonly.
+    ///
+    /// # Errors
+    /// When the [`VmCtx`]'s instructions is poisoned, [`InstructionsPoisoned`] is returned.
     pub fn start(&mut self) -> Result<(), Error> {
         let ctx = Arc::clone(&self.vm_ctx);
-        let executable_slice = ctx.instructions
+        let executable_slice = ctx
+            .instructions
             .read()
             .map_err(|_| Error::InstructionsPoisoned)?;
 
@@ -55,9 +60,7 @@ mod tests {
     pub fn processor_execute() {
         let mut vm = Vm::new();
 
-        let assembler = Assembler::new()
-            .call(0)
-            .call(1);
+        let assembler = Assembler::new().call(0).call(1);
         let compiled = assembler.compile();
 
         vm.load_instructions(compiled).unwrap();
@@ -66,7 +69,5 @@ mod tests {
         let processor = vm.processors.get_mut(&handle).unwrap();
 
         processor.start().unwrap();
-
-        println!("{:?}", processor);
     }
 }

@@ -3,15 +3,17 @@ use crate::instructions::{Execute, Instruction};
 #[derive(Debug, Default)]
 /// Self-contained type for the creation and processing of instructions.
 pub struct Assembler {
-    instructions: Vec<Instruction>
+    instructions: Vec<Instruction>,
 }
 
 impl Assembler {
+    #[must_use]
     /// Constructs a new [`Assembler`].
     pub fn new() -> Self {
         Assembler::default()
     }
 
+    #[must_use]
     /// Consumes [`self`](Assembler) pushing a new [`Call`](Instruction::Call) into self.
     pub fn call(mut self, index: u64) -> Self {
         self.instructions.push(Instruction::Call(index));
@@ -19,11 +21,13 @@ impl Assembler {
         self
     }
 
+    #[must_use]
+    /// Returns a list of [`Execute`] traits derived from self's instruction list.
     pub fn compile(self) -> Vec<Box<dyn Execute>> {
         self.instructions
             .into_iter()
             .map(|instruction| instruction.executable())
-            .collect::<Vec<_>>()
+            .collect()
     }
 }
 
