@@ -1,8 +1,9 @@
 pub mod assembler;
 pub mod error;
 pub mod instructions;
-pub mod memory;
-pub mod processor;
+mod memory;
+mod processor;
+pub mod register;
 
 use crate::error::Error;
 use crate::instructions::Execute;
@@ -15,22 +16,31 @@ use std::sync::{Arc, RwLock};
 /// An encapsulated struct containing the vital processor data and intercommunication.
 pub struct VmCtx {
     memory: RwLock<Vec<Box<[u8]>>>,
-    // TODO: Figure out whether:
-    //  1. Keep instructions as a seperated slice,
-    //  2. Make an abstraction type for memory,
-    //  3. Transform every instruction into a byte-array and vise-versa.
+
     instructions: RwLock<Vec<Box<dyn Execute>>>,
 }
 
 #[derive(Debug, Default)]
 /// A unique struct containing the processors and VM context.
 pub struct Vm {
-    pub processors: BTreeMap<usize, Processor>,
-    pub ctx: Arc<VmCtx>,
+    processors: BTreeMap<usize, Processor>,
+    ctx: Arc<VmCtx>,
 }
 
 impl Vm {
-    /// Moves the given [`Instruction`] slice into [`VmCtx`] memory.
+    #[must_use]
+    /// Constructs a new [`Vm`].
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Vm;
+    /// let vm = Vm::new();
+    /// ```
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Moves the given [`Instruction`](instructions::Instruction) slice into [`VmCtx`] memory.
     ///
     /// # Example
     /// ```
@@ -41,7 +51,7 @@ impl Vm {
     /// ```
     ///
     /// # Errors
-    /// When the [`VmCtx`].instructions is poisoned, [`InstructionsPoisoned`] is returned.
+    /// When the [`VmCtx`].instructions is poisoned, [`InstructionsPoisoned`](Error::InstructionsPoisoned) is returned.
     pub fn load_instructions(&mut self, instructions: Vec<Box<dyn Execute>>) -> Result<(), Error> {
         let ctx = Arc::clone(&self.ctx);
         let mut guard = ctx
@@ -56,12 +66,18 @@ impl Vm {
 
     #[must_use]
     /// Finds a new handle for the user climbing incrementally.
+    /// # Vulnerabilities
+    /// When you're given a handle, it is **expected you know the lifetime of the handle**.
+    /// Failure to do so will result in nature that is unwarranted. Future implementations may
+    /// include a random handle generator to mitigate this issue. However, it still doesn't ignore
+    /// the issue of lifetime.
     fn find_next_handle(&self) -> usize {
         if self.processors.is_empty() {
             return 0;
         }
 
-        // Go through the processors, create another iterator that skips 1 element, find a gap between indexes.
+        // Go through the processors, create another iterator that skips 1 element, find a gap between indices.
+        // Algorithm is quite slow, reaching O(2n) complexity.
         let index = self
             .processors
             .iter()
@@ -109,16 +125,18 @@ impl Vm {
         self.processors.remove(&index);
     }
 
-    #[must_use]
-    /// Constructs a new [`Vm`].
-    ///
-    /// # Example
-    /// ```
-    /// use vm::Vm;
-    /// let vm = Vm::new();
-    /// ```
-    pub fn new() -> Self {
-        Self::default()
+    /// Returns a reference to the [`Processor`] at the given index.
+    pub fn processor(&self, index: usize) -> Result<&Processor, Error> {
+        self.processors
+            .get(&index)
+            .ok_or(Error::ProcessorIndexOutOfBounds)
+    }
+
+    /// Returns a mutable reference to the [`Processor`] at the given index.
+    pub fn processor_mut(&mut self, index: usize) -> Result<&mut Processor, Error> {
+        self.processors
+            .get_mut(&index)
+            .ok_or(Error::ProcessorIndexOutOfBounds)
     }
 }
 

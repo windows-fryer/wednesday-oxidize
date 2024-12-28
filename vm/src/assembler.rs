@@ -1,4 +1,4 @@
-use crate::instructions::{Execute, Instruction};
+use crate::instructions::{Execute, Instruction, Operand};
 
 #[derive(Debug, Default)]
 /// Self-contained type for the creation and processing of instructions.
@@ -15,8 +15,17 @@ impl Assembler {
 
     #[must_use]
     /// Consumes [`self`](Assembler) pushing a new [`Call`](Instruction::Call) into self.
-    pub fn call(mut self, index: u64) -> Self {
+    pub fn call(mut self, index: Operand) -> Self {
         self.instructions.push(Instruction::Call(index));
+
+        self
+    }
+
+    #[must_use]
+    /// Consumes [`self`](Assembler) pushing a new [`Mov`](Instruction::Mov) into self.
+    pub fn mov(mut self, source: Operand, destination: Operand) -> Self {
+        self.instructions
+            .push(Instruction::Mov(source, destination));
 
         self
     }
@@ -42,9 +51,23 @@ mod tests {
 
     #[test]
     pub fn assembler_call() {
-        let assembler = Assembler::new().call(0);
+        let assembler = Assembler::new().call(Operand::Immediate(0));
 
         assert_eq!(assembler.instructions.len(), 1);
-        assert_eq!(assembler.instructions[0], Instruction::Call(0));
+        assert_eq!(
+            assembler.instructions[0],
+            Instruction::Call(Operand::Immediate(0))
+        );
+    }
+
+    #[test]
+    pub fn assembler_mov() {
+        let assembler = Assembler::new().mov(Operand::Immediate(0), Operand::Immediate(1));
+
+        assert_eq!(assembler.instructions.len(), 1);
+        assert_eq!(
+            assembler.instructions[0],
+            Instruction::Mov(Operand::Immediate(0), Operand::Immediate(1))
+        );
     }
 }
