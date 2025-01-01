@@ -1,9 +1,10 @@
-mod call;
+pub mod call;
 mod mov;
 
 use crate::error::Error;
 use crate::instructions::call::Call;
 use crate::processor::Processor;
+use crate::register::Width;
 
 use std::fmt::Debug;
 
@@ -14,13 +15,16 @@ pub trait Execute: Debug {
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
-/// Abstraction type for allowing [`Operands`](Operand) to be either [`Register`](Operand::Register) or [`Immediate`](Operand::Register).
+/// Abstraction type for instruction operands to contain multiple views of data.
 pub enum Operand {
     #[default]
     None,
 
-    Register(u64),
-    Immediate(u64),
+    Value(u64),
+    Register(Width),
+
+    Memory(usize),
+    MemoryRegister(Width),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -29,15 +33,15 @@ pub enum Instruction {
     /// Depending on call index range, calls either user defined or vm defined function.
     Call(Operand),
 
-    /// Moves data from one [`Register`](crate::processor::Register) or [`Immediate`](Operand::Immediate) to another [`Register`](crate::processor::Register).
+    /// Moves data from one location to another.
     Mov(Operand, Operand),
 }
 
 impl Instruction {
     pub fn executable(self) -> Box<dyn Execute> {
         match self {
-            Instruction::Call(idx) => Box::from(Call::new(idx)),
-            Instruction::Mov(src, dst) => Box::from(mov::Mov::new(src, dst)),
+            Instruction::Call(index) => Box::from(Call::new(index)),
+            Instruction::Mov(source, destination) => Box::from(mov::Mov::new(source, destination)),
         }
     }
 }

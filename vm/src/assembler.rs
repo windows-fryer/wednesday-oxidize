@@ -51,23 +51,23 @@ mod tests {
 
     #[test]
     pub fn assembler_call() {
-        let assembler = Assembler::new().call(Operand::Immediate(0));
+        let assembler = Assembler::new().call(Operand::Value(0));
 
         assert_eq!(assembler.instructions.len(), 1);
         assert_eq!(
             assembler.instructions[0],
-            Instruction::Call(Operand::Immediate(0))
+            Instruction::Call(Operand::Value(0))
         );
     }
 
     #[test]
     pub fn assembler_mov() {
-        let assembler = Assembler::new().mov(Operand::Immediate(0), Operand::Immediate(1));
+        let assembler = Assembler::new().mov(Operand::Value(0), Operand::Value(1));
 
         assert_eq!(assembler.instructions.len(), 1);
         assert_eq!(
             assembler.instructions[0],
-            Instruction::Mov(Operand::Immediate(0), Operand::Immediate(1))
+            Instruction::Mov(Operand::Value(0), Operand::Value(1))
         );
     }
 }

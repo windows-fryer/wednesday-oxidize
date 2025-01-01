@@ -2,8 +2,26 @@ use crate::error::Error;
 use crate::instructions::{Execute, Operand};
 use crate::processor::Processor;
 
+#[repr(u64)]
+#[derive(Debug, PartialEq, Eq)]
+/// Enum containing the call indices for external code.
+pub enum CallIndex {
+    /// Prints the [`Processor`] using the Debug format.
+    PrintProcessor,
+}
+
+impl From<u64> for CallIndex {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => CallIndex::PrintProcessor,
+
+            _ => todo!(),
+        }
+    }
+}
+
 #[derive(Debug, Default)]
-/// Call into internal or external code to access the [`Processor`] in a mutable state.
+/// Call into external code to access the [`Processor`] in a mutable state.
 pub struct Call {
     call_index: Operand,
 }
@@ -18,17 +36,16 @@ impl Call {
 
 impl Execute for Call {
     fn execute(&self, processor: &mut Processor) -> Result<(), Error> {
-        let call_index = match self.call_index {
-            Operand::Immediate(value) => value,
-            Operand::Register(value) => processor.register(value as usize)?.as_u64(),
+        let call_index: CallIndex = match self.call_index {
+            Operand::Value(value) => value,
+            Operand::Register(ref register) => register.as_u64(processor)?,
 
             _ => return Err(Error::InvalidOperand),
-        };
+        }
+        .into();
 
         match call_index {
-            0u64 => println!("{processor:?}"),
-
-            _ => todo!(),
+            CallIndex::PrintProcessor => println!("{processor:?}"),
         }
 
         Ok(())

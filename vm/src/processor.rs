@@ -83,8 +83,8 @@ mod tests {
         let mut vm = Vm::new();
 
         let assembler = Assembler::new()
-            .call(Operand::Immediate(0))
-            .call(Operand::Immediate(0));
+            .call(Operand::Value(0))
+            .call(Operand::Value(0));
         let compiled = assembler.compile();
 
         vm.load_instructions(compiled).unwrap();
