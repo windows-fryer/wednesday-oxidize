@@ -7,6 +7,7 @@ pub mod register;
 
 use crate::error::Error;
 use crate::instructions::Execute;
+use crate::memory::Memory;
 use crate::processor::Processor;
 
 use std::collections::BTreeMap;
@@ -15,7 +16,7 @@ use std::sync::{Arc, RwLock};
 #[derive(Debug, Default)]
 /// An encapsulated struct containing the vital processor data and intercommunication.
 pub struct VmCtx {
-    memory: RwLock<Vec<Box<[u8]>>>,
+    memory: RwLock<Memory>,
 
     instructions: RwLock<Vec<Box<dyn Execute>>>,
 }

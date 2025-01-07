@@ -23,7 +23,7 @@ pub enum Operand {
     Value(u64),
     Register(Width),
 
-    Memory(usize),
+    Memory(Width),
     MemoryRegister(Width),
 }
 

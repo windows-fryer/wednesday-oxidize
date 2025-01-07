@@ -2,7 +2,8 @@ use crate::error::Error;
 use crate::register::{Register, ReservedIndex};
 use crate::VmCtx;
 
-use std::sync::Arc;
+use crate::memory::Memory;
+use std::sync::{Arc, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Debug, Default)]
 /// Single-threaded object running code given by the [`Vm`][crate::Vm].
@@ -69,6 +70,19 @@ impl Processor {
         self.registers
             .get_mut(index)
             .ok_or(Error::RegisterIndexOutOfBounds)
+    }
+
+    /// Returns a reference to the [`Memory`] contained in the [`VmCtx`].
+    pub fn memory(&self) -> Result<RwLockReadGuard<Memory>, Error> {
+        self.vm_ctx.memory.read().map_err(|_| Error::MemoryPoisoned)
+    }
+
+    /// Returns a mutable reference to the [`Memory`] contained in the [`VmCtx`].
+    pub fn memory_mut(&self) -> Result<RwLockWriteGuard<Memory>, Error> {
+        self.vm_ctx
+            .memory
+            .write()
+            .map_err(|_| Error::MemoryPoisoned)
     }
 }
 
