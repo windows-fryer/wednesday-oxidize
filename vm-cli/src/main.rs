@@ -9,16 +9,14 @@ fn main() -> Result<(), Error> {
     let mut vm = Vm::new();
 
     let compiled = Assembler::new()
-        .mov(Operand::Value(123), Operand::Memory(Width::Byte(1)))
-        .mov(Operand::Value(123), Operand::Memory(Width::Byte(1)))
-        .mov(Operand::Value(123), Operand::Memory(Width::Byte(1)))
-        .mov(Operand::Value(123), Operand::Memory(Width::Byte(1)))
-        .mov(Operand::Value(123), Operand::Memory(Width::Byte(1)))
-        // .mov(Operand::Value(1), Operand::Memory(Width::Word(1)))
+        .mov(Operand::Value(1), Operand::Memory(Width::Byte(1)))
+        .mov(Operand::Value(2), Operand::Memory(Width::Byte(2)))
+        .jmp(Operand::Value(4))
+        .mov(Operand::Value(3), Operand::Memory(Width::Byte(3)))
+        .mov(Operand::Value(4), Operand::Memory(Width::Byte(4)))
+        .mov(Operand::Value(5), Operand::Memory(Width::Byte(5)))
         .call(Operand::Value(CallIndex::PrintProcessor as u64))
         .compile();
-
-    println!("{:?}", compiled);
 
     vm.load_instructions(compiled)?;
 

@@ -11,6 +11,26 @@ pub struct Memory {
     cells: BTreeMap<usize, MemoryCell>,
 }
 
+/// Assigns a given type value to the memory cell at the given index.
+/// Retrieves a given type value from the memory cell at the given index.
+macro_rules! primitive_impl {
+    ($put_fn:ident, $get_fn:ident, $type:ty) => {
+        pub fn $put_fn(&mut self, index: usize, value: $type) {
+            self.cells
+                .insert(index, MemoryCell::ByteArray(value.to_le_bytes().into()));
+        }
+
+        #[must_use]
+        pub fn $get_fn(&self, index: usize) -> $type {
+            match &self.cells[&index] {
+                MemoryCell::ByteArray(value) => {
+                    <$type>::from_le_bytes(value[..size_of::<$type>()].try_into().unwrap())
+                }
+            }
+        }
+    };
+}
+
 impl Memory {
     #[must_use]
     /// Constructs a new [`MemoryCell`].
@@ -18,59 +38,16 @@ impl Memory {
         Self::default()
     }
 
-    /// Assigns a [`u8`] value to the memory cell at the given index.
-    pub fn put_u8(&mut self, index: usize, value: u8) {
-        self.cells
-            .insert(index, MemoryCell::ByteArray(value.to_le_bytes().into()));
-    }
+    primitive_impl!(put_u8, get_u8, u8);
+    primitive_impl!(put_u16, get_u16, u16);
+    primitive_impl!(put_u32, get_u32, u32);
+    primitive_impl!(put_u64, get_u64, u64);
 
-    /// Assigns a [`u16`] value to the memory cell at the given index.
-    pub fn put_u16(&mut self, index: usize, value: u16) {
-        self.cells
-            .insert(index, MemoryCell::ByteArray(value.to_le_bytes().into()));
-    }
+    primitive_impl!(put_i8, get_i8, i8);
+    primitive_impl!(put_i16, get_i16, i16);
+    primitive_impl!(put_i32, get_i32, i32);
+    primitive_impl!(put_i64, get_i64, i64);
 
-    /// Assigns a [`u32`] value to the memory cell at the given index.
-    pub fn put_u32(&mut self, index: usize, value: u32) {
-        self.cells
-            .insert(index, MemoryCell::ByteArray(value.to_le_bytes().into()));
-    }
-
-    /// Assigns a [`u64`] value to the memory cell at the given index.
-    pub fn put_u64(&mut self, index: usize, value: u64) {
-        self.cells
-            .insert(index, MemoryCell::ByteArray(value.to_le_bytes().into()));
-    }
-
-    #[must_use]
-    /// Retrieves a [`u8`] value from the memory cell at the given index.
-    pub fn get_u8(&self, index: usize) -> u8 {
-        match &self.cells[&index] {
-            MemoryCell::ByteArray(value) => u8::from_le_bytes(value[..1].try_into().unwrap()),
-        }
-    }
-
-    #[must_use]
-    /// Retrieves a [`u16`] value from the memory cell at the given index.
-    pub fn get_u16(&self, index: usize) -> u16 {
-        match &self.cells[&index] {
-            MemoryCell::ByteArray(value) => u16::from_le_bytes(value[..2].try_into().unwrap()),
-        }
-    }
-
-    #[must_use]
-    /// Retrieves a [`u32`] value from the memory cell at the given index.
-    pub fn get_u32(&self, index: usize) -> u32 {
-        match &self.cells[&index] {
-            MemoryCell::ByteArray(value) => u32::from_le_bytes(value[..4].try_into().unwrap()),
-        }
-    }
-
-    #[must_use]
-    /// Retrieves a [`u64`] value from the memory cell at the given index.
-    pub fn get_u64(&self, index: usize) -> u64 {
-        match &self.cells[&index] {
-            MemoryCell::ByteArray(value) => u64::from_le_bytes(value[..8].try_into().unwrap()),
-        }
-    }
+    primitive_impl!(put_f32, get_f32, f32);
+    primitive_impl!(put_f64, get_f64, f64);
 }

@@ -9,7 +9,17 @@ pub struct Register([u8; 8]);
 #[derive(Debug, Eq, PartialEq)]
 /// Enum containing the reserved register indices.
 pub enum ReservedIndex {
+    Flags = 14,
     InstructionCounter = 15,
+}
+
+#[repr(usize)]
+#[derive(Debug, Eq, PartialEq)]
+pub enum Flag {
+    Zero = 1 << 0,
+    Sign = 1 << 2,
+    Carry = 1 << 3,
+    Overflow = 1 << 4,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -63,6 +73,19 @@ impl Width {
     }
 }
 
+/// Macro to set the value of the [`Register`] to the given primitive value.
+macro_rules! primitive_impl {
+    ($assign_name: ident, $as_name: ident, $type:ty) => {
+        pub fn $assign_name(&mut self, value: $type) {
+            self.0[..std::mem::size_of::<$type>()].copy_from_slice(&value.to_le_bytes());
+        }
+
+        pub fn $as_name(&self) -> $type {
+            <$type>::from_le_bytes(self.0[..std::mem::size_of::<$type>()].try_into().unwrap())
+        }
+    };
+}
+
 impl Register {
     #[must_use]
     /// Constructs a new [`Register`] from a given 64-bit value.
@@ -70,47 +93,42 @@ impl Register {
         Register(value.to_le_bytes())
     }
 
-    /// Sets the value of the [`Register`] to the given 8-bit value.
-    pub fn assign_u8(&mut self, value: u8) {
-        self.0[..1].copy_from_slice(value.to_le_bytes().as_slice());
-    }
+    primitive_impl!(assign_u8, as_u8, u8);
+    primitive_impl!(assign_u16, as_u16, u16);
+    primitive_impl!(assign_u32, as_u32, u32);
+    primitive_impl!(assign_u64, as_u64, u64);
 
-    /// Sets the value of the [`Register`] to the given 16-bit value.
-    pub fn assign_u16(&mut self, value: u16) {
-        self.0[..2].copy_from_slice(value.to_le_bytes().as_slice());
-    }
+    primitive_impl!(assign_i8, as_i8, i8);
+    primitive_impl!(assign_i16, as_i16, i16);
+    primitive_impl!(assign_i32, as_i32, i32);
+    primitive_impl!(assign_i64, as_i64, i64);
 
-    /// Sets the value of the [`Register`] to the given 32-bit value.
-    pub fn assign_u32(&mut self, value: u32) {
-        self.0[..4].copy_from_slice(value.to_le_bytes().as_slice());
-    }
+    primitive_impl!(assign_f32, as_f32, f32);
+    primitive_impl!(assign_f64, as_f64, f64);
+}
 
-    /// Sets the value of the [`Register`] to the given 64-bit value.
-    pub fn assign_u64(&mut self, value: u64) {
-        self.0 = value.to_le_bytes();
-    }
+#[macro_export]
+/// Macro to match a [`Width`] to a register index.
+macro_rules! get_register_value {
+    ($processor:expr, $memory_register:expr) => {
+        match $memory_register {
+            Width::Byte(index) => $processor.register(*index)?.as_u8() as u64,
+            Width::Word(index) => $processor.register(*index)?.as_u16() as u64,
+            Width::DWord(index) => $processor.register(*index)?.as_u32() as u64,
+            Width::QWord(index) => $processor.register(*index)?.as_u64(),
+        }
+    };
+}
 
-    #[must_use]
-    /// Gets the value of the [`Register`] as an 8-bit value.
-    pub fn as_u8(&self) -> u8 {
-        u8::from_le_bytes(self.0[..1].try_into().unwrap())
-    }
-
-    #[must_use]
-    /// Gets the value of the [`Register`] as a 16-bit value.
-    pub fn as_u16(&self) -> u16 {
-        u16::from_le_bytes(self.0[..2].try_into().unwrap())
-    }
-
-    #[must_use]
-    /// Gets the value of the [`Register`] as a 32-bit value.
-    pub fn as_u32(&self) -> u32 {
-        u32::from_le_bytes(self.0[..4].try_into().unwrap())
-    }
-
-    #[must_use]
-    /// Gets the value of the [`Register`] as a 64-bit value.
-    pub fn as_u64(&self) -> u64 {
-        u64::from_le_bytes(self.0)
-    }
+#[macro_export]
+/// Macro to match a [`Width`] to a mutable register index.
+macro_rules! assign_register_value {
+    ($processor:expr, $memory_register:expr, $source:expr) => {
+        match $memory_register {
+            Width::Byte(index) => $processor.register_mut(*index)?.assign_u8($source as u8),
+            Width::Word(index) => $processor.register_mut(*index)?.assign_u16($source as u16),
+            Width::DWord(index) => $processor.register_mut(*index)?.assign_u32($source as u32),
+            Width::QWord(index) => $processor.register_mut(*index)?.assign_u64($source),
+        }
+    };
 }

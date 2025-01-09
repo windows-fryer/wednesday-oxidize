@@ -31,6 +31,14 @@ impl Assembler {
     }
 
     #[must_use]
+    /// Consumes [`self`](Assembler) pushing a new [`Jmp`](Instruction::Jmp) into self.
+    pub fn jmp(mut self, source: Operand) -> Self {
+        self.instructions.push(Instruction::Jmp(source));
+
+        self
+    }
+
+    #[must_use]
     /// Returns a list of [`Execute`] traits derived from self's instruction list.
     pub fn compile(self) -> Vec<Box<dyn Execute>> {
         self.instructions
