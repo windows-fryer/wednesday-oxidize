@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::register::{Register, ReservedIndex};
+use crate::register::{Flag, Register, ReservedIndex};
 use crate::VmCtx;
 
 use crate::memory::Memory;
@@ -83,6 +83,33 @@ impl Processor {
             .memory
             .write()
             .map_err(|_| Error::MemoryPoisoned)
+    }
+
+    /// Sets the given [`Flag`] to the given state.
+    pub fn set_flag(&mut self, flag: Flag, state: bool) {
+        let mut flags = self
+            .register_mut(ReservedIndex::Flags as usize)
+            .unwrap()
+            .as_u64();
+
+        if state {
+            flags |= flag as u64;
+        } else {
+            flags &= !(flag as u64);
+        }
+
+        self.registers[ReservedIndex::Flags as usize].assign_u64(flags);
+    }
+
+    #[must_use]
+    /// Returns the state of the given [`Flag`].
+    pub fn flag(&self, flag: Flag) -> bool {
+        let flags = self
+            .register(ReservedIndex::Flags as usize)
+            .unwrap()
+            .as_u64();
+
+        flags & (flag as u64) != 0
     }
 }
 

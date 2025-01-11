@@ -39,6 +39,40 @@ impl Assembler {
     }
 
     #[must_use]
+    /// Consumes [`self`](Assembler) pushing a new [`Jnz`](Instruction::Jnz) into self.
+    pub fn jnz(mut self, source: Operand) -> Self {
+        self.instructions.push(Instruction::Jnz(source));
+
+        self
+    }
+
+    #[must_use]
+    /// Consumes [`self`](Assembler) pushing a new [`Jz`](Instruction::Jz) into self.
+    pub fn jz(mut self, source: Operand) -> Self {
+        self.instructions.push(Instruction::Jz(source));
+
+        self
+    }
+
+    #[must_use]
+    /// Consumes [`self`](Assembler) pushing a new [`Cmp`](Instruction::Cmp) into self.
+    pub fn cmp(mut self, source: Operand, destination: Operand) -> Self {
+        self.instructions
+            .push(Instruction::Cmp(source, destination));
+
+        self
+    }
+
+    #[must_use]
+    /// Consumes [`self`](Assembler) pushing a new [`Add`](Instruction::Add) into self.
+    pub fn add(mut self, value: Operand, source: Operand, destination: Operand) -> Self {
+        self.instructions
+            .push(Instruction::Add(value, source, destination));
+
+        self
+    }
+
+    #[must_use]
     /// Returns a list of [`Execute`] traits derived from self's instruction list.
     pub fn compile(self) -> Vec<Box<dyn Execute>> {
         self.instructions

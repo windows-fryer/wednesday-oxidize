@@ -1,6 +1,9 @@
+mod add;
 pub mod call;
 mod cmp;
 mod jmp;
+mod jnz;
+mod jz;
 mod mov;
 
 use crate::error::Error;
@@ -15,7 +18,7 @@ pub trait Execute: Debug {
     fn execute(&self, processor: &mut Processor) -> Result<(), Error>;
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 /// Abstraction type for instruction operands to contain multiple views of data.
 pub enum Operand {
     #[default]
@@ -39,6 +42,18 @@ pub enum Instruction {
 
     /// Jumps to the specified location in the instruction memory.
     Jmp(Operand),
+
+    /// Jumps to the specified location in the instruction memory if the zero flag is set.
+    Jz(Operand),
+
+    /// Jumps to the specified location in the instruction memory if the zero flag is not set.
+    Jnz(Operand),
+
+    /// Compares two values and sets flags.
+    Cmp(Operand, Operand),
+
+    /// Add two operands and store the result in the destination.
+    Add(Operand, Operand, Operand),
 }
 
 impl Instruction {
@@ -47,6 +62,12 @@ impl Instruction {
             Instruction::Call(index) => Box::from(call::Call::new(index)),
             Instruction::Mov(source, destination) => Box::from(mov::Mov::new(source, destination)),
             Instruction::Jmp(source) => Box::from(jmp::Jmp::new(source)),
+            Instruction::Jz(source) => Box::from(jz::Jz::new(source)),
+            Instruction::Jnz(source) => Box::from(jnz::Jnz::new(source)),
+            Instruction::Cmp(value, comparator) => Box::from(cmp::Cmp::new(value, comparator)),
+            Instruction::Add(value, source, destination) => {
+                Box::from(add::Add::new(value, source, destination))
+            }
         }
     }
 }

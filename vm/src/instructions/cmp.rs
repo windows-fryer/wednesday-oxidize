@@ -1,7 +1,7 @@
 use crate::error::Error;
 use crate::instructions::{Execute, Operand};
 use crate::processor::Processor;
-use crate::register::Width;
+use crate::register::{Flag, Width};
 use crate::{get_memory_value, get_memory_value_by_width, get_register_value};
 
 #[derive(Debug, Default)]
@@ -34,7 +34,7 @@ impl Execute for Cmp {
             _ => return Err(Error::InvalidOperand),
         };
 
-        match self.comparator {
+        let comparator = match self.comparator {
             Operand::Value(comparator) => comparator,
             Operand::Register(ref register) => get_register_value!(processor, register),
             Operand::Memory(ref memory) => get_memory_value_by_width!(processor, memory),
@@ -46,6 +46,9 @@ impl Execute for Cmp {
 
             _ => return Err(Error::InvalidOperand),
         };
+
+        processor.set_flag(Flag::Zero, value.wrapping_sub(comparator) == 0);
+        processor.set_flag(Flag::Greater, value > comparator);
 
         Ok(())
     }

@@ -13,16 +13,15 @@ pub enum ReservedIndex {
     InstructionCounter = 15,
 }
 
-#[repr(usize)]
+#[repr(u64)]
 #[derive(Debug, Eq, PartialEq)]
 pub enum Flag {
     Zero = 1 << 0,
-    Sign = 1 << 2,
-    Carry = 1 << 3,
-    Overflow = 1 << 4,
+    Greater = 1 << 1,
+    Overflow = 1 << 2,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 /// Enum containing the possible widths of a [`Register`].
 pub enum Width {
     Byte(usize),
@@ -32,7 +31,7 @@ pub enum Width {
 }
 
 impl Width {
-    /// Converts the [`Width`] to a 8-bit value.
+    /// Converts the [`Width`] to an 8-bit value.
     pub fn as_u8(&self, processor: &Processor) -> Result<u8, Error> {
         match self {
             Width::Byte(index) => Ok(processor.register(*index)?.as_u8()),
