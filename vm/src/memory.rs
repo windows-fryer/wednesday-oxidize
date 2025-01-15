@@ -51,3 +51,88 @@ impl Memory {
     primitive_impl!(put_f32, get_f32, f32);
     primitive_impl!(put_f64, get_f64, f64);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_u8() {
+        let mut memory = Memory::new();
+        memory.put_u8(0, 0x01);
+
+        assert_eq!(memory.get_u8(0), 0x01);
+    }
+
+    #[test]
+    fn test_u16() {
+        let mut memory = Memory::new();
+        memory.put_u16(0, 0x0102);
+
+        assert_eq!(memory.get_u16(0), 0x0102);
+    }
+
+    #[test]
+    fn test_u32() {
+        let mut memory = Memory::new();
+        memory.put_u32(0, 0x01020304);
+
+        assert_eq!(memory.get_u32(0), 0x01020304);
+    }
+
+    #[test]
+    fn test_u64() {
+        let mut memory = Memory::new();
+        memory.put_u64(0, 0x0102030405060708);
+
+        assert_eq!(memory.get_u64(0), 0x0102030405060708);
+    }
+
+    #[test]
+    fn test_i8() {
+        let mut memory = Memory::new();
+        memory.put_i8(0, 0x01);
+
+        assert_eq!(memory.get_i8(0), 0x01);
+    }
+
+    #[test]
+    fn test_i16() {
+        let mut memory = Memory::new();
+        memory.put_i16(0, 0x0102);
+
+        assert_eq!(memory.get_i16(0), 0x0102);
+    }
+
+    #[test]
+    fn test_i32() {
+        let mut memory = Memory::new();
+        memory.put_i32(0, 0x01020304);
+
+        assert_eq!(memory.get_i32(0), 0x01020304);
+    }
+
+    #[test]
+    fn test_i64() {
+        let mut memory = Memory::new();
+        memory.put_i64(0, 0x0102030405060708);
+
+        assert_eq!(memory.get_i64(0), 0x0102030405060708);
+    }
+
+    #[test]
+    fn test_f32() {
+        let mut memory = Memory::new();
+        memory.put_f32(0, 0.1);
+
+        assert_eq!(memory.get_f32(0), 0.1);
+    }
+
+    #[test]
+    fn test_f64() {
+        let mut memory = Memory::new();
+        memory.put_f64(0, 0.1);
+
+        assert_eq!(memory.get_f64(0), 0.1);
+    }
+}

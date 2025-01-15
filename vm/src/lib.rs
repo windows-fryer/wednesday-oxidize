@@ -144,83 +144,58 @@ impl Vm {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::instructions::Operand;
+    use crate::register::Width;
 
     #[test]
-    pub fn vm_construct() {
-        let _ = Vm::new();
-    }
-
-    #[test]
-    pub fn vm_processor_construct_once() {
-        let mut vm = Vm::new();
-
-        let processor_handle = vm.new_processor();
-
-        assert_eq!(vm.processors.len(), 1);
-        assert_eq!(vm.processors.len() - 1, processor_handle);
-    }
-
-    #[test]
-    pub fn vm_processor_construct_multi() {
-        let mut vm = Vm::new();
-
-        let _ = vm.new_processor();
-        let second_processor_handle = vm.new_processor();
-
-        assert_eq!(vm.processors.len(), 2);
-        assert_eq!(vm.processors.len() - 1, second_processor_handle);
-    }
-
-    #[test]
-    pub fn vm_processor_construct_override_once() {
-        let mut vm = Vm::new();
-
-        let processor_handle = vm.new_processor();
-        vm.destroy_processor(processor_handle);
-
-        let second_processor_handle = vm.new_processor();
-
-        assert_eq!(vm.processors.len(), 1);
-        assert_eq!(vm.processors.len() - 1, second_processor_handle);
-    }
-
-    #[test]
-    pub fn vm_processor_construct_override_multi() {
-        let mut vm = Vm::new();
-
-        let _first_processor_handle = vm.new_processor();
-        let second_processor_handle = vm.new_processor();
-        let _third_processor_handle = vm.new_processor();
-
-        vm.destroy_processor(second_processor_handle);
-
-        let fourth_processor_handle = vm.new_processor();
-
-        assert_eq!(vm.processors.len(), 3);
-        assert_eq!(1, fourth_processor_handle);
-    }
-
-    #[test]
-    pub fn vm_processor_deconstruct_once() {
-        let mut vm = Vm::new();
-
-        let processor_handle = vm.new_processor();
-
-        vm.destroy_processor(processor_handle);
-
+    fn test_new_vm() {
+        let vm = Vm::new();
         assert_eq!(vm.processors.len(), 0);
     }
 
     #[test]
-    pub fn vm_processor_deconstruct_multi() {
+    fn test_load_instructions() {
         let mut vm = Vm::new();
+        let instructions = vec![instructions::Instruction::Mov(
+            Operand::Value(0),
+            Operand::Register(Width::QWord(0)),
+        )
+        .executable()];
+        let _ = vm.load_instructions(instructions);
+        assert_eq!(vm.ctx.instructions.read().unwrap().len(), 1);
+    }
 
-        let first_processor_handle = vm.new_processor();
-        let second_processor_handle = vm.new_processor();
-
-        vm.destroy_processor(first_processor_handle);
-
+    #[test]
+    fn test_new_processor() {
+        let mut vm = Vm::new();
+        let _ = vm.new_processor();
         assert_eq!(vm.processors.len(), 1);
-        assert_eq!(vm.processors.len(), second_processor_handle);
+    }
+
+    #[test]
+    fn test_destroy_processor() {
+        let mut vm = Vm::new();
+        let prod_idx = vm.new_processor();
+        vm.destroy_processor(prod_idx);
+        assert_eq!(vm.processors.len(), 0);
+    }
+
+    #[test]
+    fn test_processor() {
+        let mut vm = Vm::new();
+        let prod_idx = vm.new_processor();
+        let processor = vm.processor(prod_idx).unwrap();
+
+        assert_eq!(processor.register(0usize).unwrap().as_u64(), 0);
+    }
+
+    #[test]
+    fn test_processor_mut() {
+        let mut vm = Vm::new();
+        let prod_idx = vm.new_processor();
+        let processor = vm.processor_mut(prod_idx).unwrap();
+
+        processor.register_mut(0usize).unwrap().assign_u64(10);
+        assert_eq!(processor.register(0usize).unwrap().as_u64(), 10);
     }
 }

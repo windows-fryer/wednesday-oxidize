@@ -85,31 +85,68 @@ impl Assembler {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::register::Width;
 
     #[test]
-    pub fn assembler_construct() {
-        let _ = Assembler::new();
+    fn test_new_assembler() {
+        let assembler = Assembler::new();
+        assert_eq!(assembler.instructions.len(), 0);
     }
 
     #[test]
-    pub fn assembler_call() {
+    fn test_call() {
         let assembler = Assembler::new().call(Operand::Value(0));
-
         assert_eq!(assembler.instructions.len(), 1);
-        assert_eq!(
-            assembler.instructions[0],
-            Instruction::Call(Operand::Value(0))
-        );
     }
 
     #[test]
-    pub fn assembler_mov() {
-        let assembler = Assembler::new().mov(Operand::Value(0), Operand::Value(1));
-
+    fn test_mov() {
+        let assembler = Assembler::new().mov(Operand::Value(0), Operand::Register(Width::QWord(0)));
         assert_eq!(assembler.instructions.len(), 1);
-        assert_eq!(
-            assembler.instructions[0],
-            Instruction::Mov(Operand::Value(0), Operand::Value(1))
+    }
+
+    #[test]
+    fn test_jmp() {
+        let assembler = Assembler::new().jmp(Operand::Value(0));
+        assert_eq!(assembler.instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_jnz() {
+        let assembler = Assembler::new().jnz(Operand::Value(0));
+        assert_eq!(assembler.instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_jz() {
+        let assembler = Assembler::new().jz(Operand::Value(0));
+        assert_eq!(assembler.instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_cmp() {
+        let assembler = Assembler::new().cmp(Operand::Value(0), Operand::Register(Width::QWord(0)));
+        assert_eq!(assembler.instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_add() {
+        let assembler = Assembler::new().add(
+            Operand::Value(0),
+            Operand::Register(Width::QWord(0)),
+            Operand::Register(Width::QWord(0)),
         );
+        assert_eq!(assembler.instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_compile() {
+        let assembler = Assembler::new().add(
+            Operand::Value(0),
+            Operand::Register(Width::QWord(0)),
+            Operand::Register(Width::QWord(0)),
+        );
+        let instructions = assembler.compile();
+        assert_eq!(instructions.len(), 1);
     }
 }

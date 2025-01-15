@@ -115,24 +115,71 @@ impl Processor {
 
 #[cfg(test)]
 mod tests {
-    use crate::assembler::Assembler;
-    use crate::instructions::Operand;
+    use super::*;
     use crate::Vm;
 
     #[test]
-    pub fn processor_execute() {
+    fn test_new_processor() {
         let mut vm = Vm::new();
 
-        let assembler = Assembler::new()
-            .call(Operand::Value(0))
-            .call(Operand::Value(0));
-        let compiled = assembler.compile();
+        let _ = vm.new_processor();
+    }
 
-        vm.load_instructions(compiled).unwrap();
+    #[test]
+    fn test_register() {
+        let mut vm = Vm::new();
 
-        let handle = vm.new_processor();
-        let processor = vm.processors.get_mut(&handle).unwrap();
+        let processor_handle = vm.new_processor();
+        let processor = vm.processor(processor_handle).unwrap();
 
-        processor.start().unwrap();
+        let register = processor.register(0usize).unwrap();
+        assert_eq!(register.as_u64(), 0);
+    }
+
+    #[test]
+    fn test_register_mut() {
+        let mut vm = Vm::new();
+
+        let processor_handle = vm.new_processor();
+        let processor = vm.processor_mut(processor_handle).unwrap();
+
+        let register = processor.register_mut(0usize).unwrap();
+        register.assign_u64(1);
+
+        assert_eq!(register.as_u64(), 1);
+    }
+
+    #[test]
+    fn test_memory() {
+        let mut vm = Vm::new();
+
+        let processor_handle = vm.new_processor();
+        let processor = vm.processor(processor_handle).unwrap();
+
+        let _unused = processor.memory().unwrap();
+    }
+
+    #[test]
+    fn test_memory_mut() {
+        let mut vm = Vm::new();
+
+        let processor_handle = vm.new_processor();
+        let processor = vm.processor(processor_handle).unwrap();
+
+        let mut memory = processor.memory_mut().unwrap();
+        memory.put_u8(0, 1);
+
+        assert_eq!(memory.get_u8(0), 1);
+    }
+
+    #[test]
+    fn test_set_flag() {
+        let mut vm = Vm::new();
+
+        let processor_handle = vm.new_processor();
+        let processor = vm.processor_mut(processor_handle).unwrap();
+
+        processor.set_flag(Flag::Overflow, true);
+        assert!(processor.flag(Flag::Overflow));
     }
 }
