@@ -66,11 +66,11 @@ impl Processor {
 
             match instruction {
                 Some(instruction) => {
-                    instruction.execute(self)?;
-
                     let counter = self.register_mut(ReservedIndex::InstructionCounter as usize)?;
 
                     counter.assign_u64(counter.as_u64() + 1);
+
+                    instruction.execute(self)?;
                 }
 
                 None => break,
