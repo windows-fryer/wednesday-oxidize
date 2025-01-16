@@ -8,7 +8,7 @@ use crate::register::Width;
 #[derive(Debug, PartialEq, Eq)]
 /// Enum containing the call indices for external code.
 pub enum CallIndex {
-    /// Prints the [`Processor`] using the Debug format.
+    /// Prints the processor using the Debug format.
     PrintProcessor = 0,
 }
 
@@ -23,7 +23,7 @@ impl From<u64> for CallIndex {
 }
 
 #[derive(Debug, Default)]
-/// Call into external code to access the [`Processor`] in a mutable state.
+/// Call into external code to access the processor in a mutable state.
 pub struct Call {
     call_index: Operand,
 }

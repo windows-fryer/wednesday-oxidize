@@ -17,7 +17,6 @@ use std::sync::{Arc, RwLock};
 /// An encapsulated struct containing the vital processor data and intercommunication.
 pub struct VmCtx {
     memory: RwLock<Memory>,
-
     instructions: RwLock<Vec<Box<dyn Execute>>>,
 }
 
@@ -95,15 +94,16 @@ impl Vm {
     }
 
     #[must_use]
-    /// Constructs a new [`Processor`] and returns a unique handle to the [`Processor`].
+    /// Constructs a new processor and returns a unique handle to the processor.
     ///
-    /// The handle exists with the [`Processor`]. Hence, it shares lifetimes with the [`Vm`].
+    /// The handle exists with the processor. Hence, it shares lifetimes with the [`Vm`].
     ///
     /// # Example
     /// ```
     /// use vm::Vm;
+    ///
     /// let mut vm_inst = Vm::new();
-    /// let mut _prod_idx = vm_inst.new_processor();
+    /// let mut prod_idx = vm_inst.new_processor();
     /// ```
     pub fn new_processor(&mut self) -> usize {
         let index = self.find_next_handle();
@@ -113,27 +113,49 @@ impl Vm {
         index
     }
 
-    /// Destroys the [`Processor`] at the given index.
+    /// Destroys the processor at the given index.
     ///
     /// # Example
     /// ```
     /// use vm::Vm;
+    ///
     /// let mut vm_inst = Vm::new();
     /// let mut prod_idx = vm_inst.new_processor();
+    ///
     /// vm_inst.destroy_processor(prod_idx);
     /// ```
     pub fn destroy_processor(&mut self, index: usize) {
         self.processors.remove(&index);
     }
 
-    /// Returns a reference to the [`Processor`] at the given index.
+    /// Returns a reference to the processor at the given index.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Vm;
+    ///
+    /// let mut vm_inst = Vm::new();
+    ///
+    /// let prod_idx = vm_inst.new_processor();
+    /// let processor = vm_inst.processor(prod_idx).unwrap();
+    /// ```   
     pub fn processor(&self, index: usize) -> Result<&Processor, Error> {
         self.processors
             .get(&index)
             .ok_or(Error::ProcessorIndexOutOfBounds)
     }
 
-    /// Returns a mutable reference to the [`Processor`] at the given index.
+    /// Returns a mutable reference to the processor at the given index.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Vm;
+    ///
+    /// let mut vm_inst = Vm::new();
+    ///
+    /// let prod_idx = vm_inst.new_processor();
+    /// let processor = vm_inst.processor_mut(prod_idx).unwrap();
+    /// ```
     pub fn processor_mut(&mut self, index: usize) -> Result<&mut Processor, Error> {
         self.processors
             .get_mut(&index)

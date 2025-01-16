@@ -7,18 +7,30 @@ pub struct Register([u8; 8]);
 
 #[repr(usize)]
 #[derive(Debug, Eq, PartialEq)]
-/// Enum containing the reserved register indices.
+/// Enum containing the reserved [`Register`] indices.
 pub enum ReservedIndex {
+    /// Contains flags for the processor.
     Flags = 14,
+
+    /// Contains the current instruction position for the processor.
     InstructionCounter = 15,
 }
 
 #[repr(u64)]
 #[derive(Debug, Eq, PartialEq)]
+/// Flags for a processors flag [`Register`]
 pub enum Flag {
+    /// Set during [`Cmp`](crate::instructions::Instruction::Cmp) operations when sub operation is zero.
     Zero = 1 << 0,
+
+    /// Set during [`Cmp`](crate::instructions::Instruction::Cmp) operations when the source is greater than the comparator
     Greater = 1 << 1,
-    Overflow = 1 << 2,
+
+    /// Set during [`Cmp`](crate::instructions::Instruction::Cmp) operations when the source is less than the comparator
+    Less = 1 << 2,
+
+    /// Set during [`Sub`](crate::instructions::Instruction::Sub) & [`Add`](crate::instructions::Instruction::Add) when the source is overflowed from the value.
+    Overflow = 1 << 3,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

@@ -1,10 +1,15 @@
 mod add;
 pub mod call;
 mod cmp;
+mod jg;
+mod jl;
 mod jmp;
+mod jng;
+mod jnl;
 mod jnz;
 mod jz;
 mod mov;
+mod sub;
 
 use crate::error::Error;
 use crate::processor::Processor;
@@ -12,9 +17,9 @@ use crate::register::Width;
 
 use std::fmt::Debug;
 
-/// Polymorphic self-containing data-type for executing an instruction on a [`Processor`].
+/// Polymorphic self-containing data-type for executing an instruction on a processor.
 pub trait Execute: Debug {
-    /// Executes the [`Instruction`] modifying the state of the [`Processor`].
+    /// Executes the [`Instruction`] modifying the state of the processor.
     fn execute(&self, processor: &mut Processor) -> Result<(), Error>;
 }
 
@@ -54,6 +59,21 @@ pub enum Instruction {
 
     /// Add two operands and store the result in the destination.
     Add(Operand, Operand, Operand),
+
+    /// Subtract two operands and store the result in the destination.
+    Sub(Operand, Operand, Operand),
+
+    /// Jump if greater.
+    Jg(Operand),
+
+    /// Jump if less.
+    Jl(Operand),
+
+    /// Jump if not greater.
+    Jng(Operand),
+
+    /// Jump if not less.
+    Jnl(Operand),
 }
 
 impl Instruction {
@@ -68,12 +88,19 @@ impl Instruction {
             Instruction::Add(value, source, destination) => {
                 Box::from(add::Add::new(value, source, destination))
             }
+            Instruction::Sub(value, source, destination) => {
+                Box::from(sub::Sub::new(value, source, destination))
+            }
+            Instruction::Jg(source) => Box::from(jg::Jg::new(source)),
+            Instruction::Jl(source) => Box::from(jl::Jl::new(source)),
+            Instruction::Jng(source) => Box::from(jng::Jng::new(source)),
+            Instruction::Jnl(source) => Box::from(jnl::Jnl::new(source)),
         }
     }
 }
 
 #[macro_export]
-/// Macro for matching the [`Memory`] type and getting the value.
+/// Macro for matching the memory type and getting the value.
 macro_rules! get_memory_value_by_width {
     ($processor:expr, $memory:expr) => {
         match $memory {
@@ -86,7 +113,7 @@ macro_rules! get_memory_value_by_width {
 }
 
 #[macro_export]
-/// Macro for matching the [`Register`] type and getting the value. Omits the value of [`Width`].
+/// Macro for matching the [`Register`](crate::register::Register) type and getting the value. Omits the value of [`Width`].
 macro_rules! get_memory_value {
     ($processor:expr, $memory:expr, $index:expr) => {
         match $memory {
@@ -99,7 +126,7 @@ macro_rules! get_memory_value {
 }
 
 #[macro_export]
-/// Macro for matching the [`Memory`] type and setting the value.
+/// Macro for matching the memory type and setting the value.
 macro_rules! assign_memory_value_by_width {
     ($processor:expr, $memory:expr, $source:expr) => {
         match $memory {
@@ -112,7 +139,7 @@ macro_rules! assign_memory_value_by_width {
 }
 
 #[macro_export]
-/// Macro for matching the [`Memory`] type and setting the value. Omits the value of [`Width`].
+/// Macro for matching the memory type and setting the value. Omits the value of [`Width`].
 macro_rules! assign_memory_value {
     ($processor:expr, $memory:expr, $index:expr, $source:expr) => {
         match $memory {

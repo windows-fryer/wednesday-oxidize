@@ -18,6 +18,16 @@ pub struct Processor {
 impl Processor {
     #[must_use]
     /// Constructs a new [`Processor`] creating a new reference to [`VmCtx`].
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let processor = Processor::new(&vm_ctx);
+    /// ```
     pub fn new(vm_ctx: &Arc<VmCtx>) -> Self {
         Processor {
             vm_ctx: Arc::clone(vm_ctx),
@@ -26,6 +36,18 @@ impl Processor {
     }
 
     /// Starts execution on self, locking [`VmCtx's`](VmCtx) instructions for readonly.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    /// use vm::error::Error;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let mut processor = Processor::new(&vm_ctx);
+    /// let _ = processor.start();
+    /// ```
     ///
     /// # Errors
     /// When the [`VmCtx's`](VmCtx) instructions is poisoned, [`InstructionsPoisoned`](Error::InstructionsPoisoned) is returned.
@@ -59,6 +81,17 @@ impl Processor {
     }
 
     /// Returns a reference to the [`Register`] at the given index.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let processor = Processor::new(&vm_ctx);
+    /// let register = processor.register(0);
+    /// ```
     pub fn register(&self, index: usize) -> Result<&Register, Error> {
         self.registers
             .get(index)
@@ -66,6 +99,17 @@ impl Processor {
     }
 
     /// Returns a mutable reference to the [`Register`] at the given index.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let mut processor = Processor::new(&vm_ctx);
+    /// let register = processor.register_mut(0);
+    /// ```
     pub fn register_mut(&mut self, index: usize) -> Result<&mut Register, Error> {
         self.registers
             .get_mut(index)
@@ -73,11 +117,33 @@ impl Processor {
     }
 
     /// Returns a reference to the [`Memory`] contained in the [`VmCtx`].
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let processor = Processor::new(&vm_ctx);
+    /// let _ = processor.memory();
+    /// ```
     pub fn memory(&self) -> Result<RwLockReadGuard<Memory>, Error> {
         self.vm_ctx.memory.read().map_err(|_| Error::MemoryPoisoned)
     }
 
     /// Returns a mutable reference to the [`Memory`] contained in the [`VmCtx`].
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let mut processor = Processor::new(&vm_ctx);
+    /// let _ = processor.memory_mut();
+    /// ```
     pub fn memory_mut(&self) -> Result<RwLockWriteGuard<Memory>, Error> {
         self.vm_ctx
             .memory
@@ -86,6 +152,18 @@ impl Processor {
     }
 
     /// Sets the given [`Flag`] to the given state.
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    /// use vm::register::Flag;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let mut processor = Processor::new(&vm_ctx);
+    /// processor.set_flag(Flag::Overflow, true);
+    /// ```
     pub fn set_flag(&mut self, flag: Flag, state: bool) {
         let mut flags = self
             .register_mut(ReservedIndex::Flags as usize)
@@ -103,6 +181,18 @@ impl Processor {
 
     #[must_use]
     /// Returns the state of the given [`Flag`].
+    ///
+    /// # Example
+    /// ```
+    /// use vm::Processor;
+    /// use vm::VmCtx;
+    /// use std::sync::Arc;
+    /// use vm::register::Flag;
+    ///
+    /// let vm_ctx = Arc::new(VmCtx::default());
+    /// let processor = Processor::new(&vm_ctx);
+    /// let _ = processor.flag(Flag::Overflow);
+    /// ```
     pub fn flag(&self, flag: Flag) -> bool {
         let flags = self
             .register(ReservedIndex::Flags as usize)

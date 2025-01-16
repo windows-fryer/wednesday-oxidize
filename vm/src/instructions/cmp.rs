@@ -49,6 +49,7 @@ impl Execute for Cmp {
 
         processor.set_flag(Flag::Zero, value.wrapping_sub(comparator) == 0);
         processor.set_flag(Flag::Greater, value > comparator);
+        processor.set_flag(Flag::Less, value < comparator);
 
         Ok(())
     }
