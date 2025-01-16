@@ -2,10 +2,8 @@
 name = "vm-cli"
 version = "0.1.0"
 edition = "2021"
-
-[metadata]
 license = "MIT"
-description = "A general purpose virtual machine"
+description = "Wednesday virtual machine cli tool"
 homepage = "https://github.com/windows-fryer/wednesday-oxidize"
 repository = "https://github.com/windows-fryer/wednesday-oxidize"
 readme = "README.md"
