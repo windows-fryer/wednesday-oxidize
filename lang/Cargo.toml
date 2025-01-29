@@ -1,0 +1,8 @@
+[package]
+name = "lang"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = { version = "1.11.1" }
+vm = { path = "../vm", version = "0.1.0" }

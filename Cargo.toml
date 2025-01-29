@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["vm", "vm-cli"]
+members = ["lang", "vm", "vm-cli"]

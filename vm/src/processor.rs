@@ -50,7 +50,7 @@ impl Processor {
     /// ```
     ///
     /// # Errors
-    /// When the [`VmCtx's`](VmCtx) instructions is poisoned, [`InstructionsPoisoned`](Error::InstructionsPoisoned) is returned.
+    /// When the [`VmCtx`](VmCtx) instructions are poisoned, [`InstructionsPoisoned`](Error::InstructionsPoisoned) is returned.
     pub fn start(&mut self) -> Result<(), Error> {
         let ctx = Arc::clone(&self.vm_ctx);
         let executable_slice = ctx

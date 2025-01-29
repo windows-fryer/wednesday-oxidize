@@ -8,13 +8,13 @@ fn main() -> Result<(), Error> {
     let mut vm = Vm::new();
 
     // Fibonacci sequence: F(93)
-    // mov 0, rq0 ; Setup counter registers
+    // mov 0, rq0                   ; Setup counter registers
     // mov 1, rq1
-    // mov rq1, rq2 ; Move the old value of rq1 to rq2
-    // add rq0, rq1, rq1 ; Add rq0 onto rq1 and store in rq1
-    // mov rq2, rq0 ; Restore the old value of rq1 into rq0
+    // mov rq1, rq2                 ; Move the old value of rq1 to rq2
+    // add rq0, rq1, rq1            ; Add rq0 onto rq1 and store in rq1
+    // mov rq2, rq0                 ; Restore the old value of rq1 into rq0
     // cmp rq1, 7540113804746346429 ; See if rq1 is at the 93rd term
-    // jnz 3 ; If not, jump to the move of rq1 to rq2
+    // jnz 3                        ; If not, jump to the move of rq1 to rq2
 
     let start = std::time::Instant::now();
 
