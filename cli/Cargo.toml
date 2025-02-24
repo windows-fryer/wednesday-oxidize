@@ -1,0 +1,12 @@
+[package]
+name = "wednesday-cli"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Wednesday generalized CLI"
+homepage = "https://github.com/windows-fryer/wednesday-oxidize/cli"
+repository = "https://github.com/windows-fryer/wednesday-oxidize"
+readme = "README.md"
+
+[dependencies]
+wednesday-vm = { path = "../vm", version = "0.1.0" }

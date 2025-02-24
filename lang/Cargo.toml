@@ -1,8 +1,7 @@
 [package]
-name = "lang"
+name = "wednesday-lang"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-regex = { version = "1.11.1" }
-vm = { path = "../vm", version = "0.1.0" }
+wednesday-vm = { path = "../vm", version = "0.1.0" }

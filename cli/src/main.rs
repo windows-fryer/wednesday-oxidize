@@ -1,8 +1,8 @@
-use vm::assembler::Assembler;
-use vm::error::Error;
-use vm::instructions::Operand;
-use vm::register::Width;
-use vm::Vm;
+use wednesday_vm::Vm;
+use wednesday_vm::assembler::Assembler;
+use wednesday_vm::error::Error;
+use wednesday_vm::instructions::Operand;
+use wednesday_vm::register::Width;
 
 fn main() -> Result<(), Error> {
     let mut vm = Vm::new();

@@ -1,9 +1,9 @@
 [package]
-name = "vm"
+name = "wednesday-vm"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
-description = "A general purpose virtual machine"
+description = "A purpose-built virtual machine for the Wednesday language."
 homepage = "https://github.com/windows-fryer/wednesday-oxidize"
 repository = "https://github.com/windows-fryer/wednesday-oxidize"
 readme = "README.md"
