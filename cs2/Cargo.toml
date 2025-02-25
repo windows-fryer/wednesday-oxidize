@@ -1,0 +1,7 @@
+[package]
+name = "wednesday-cs2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wednesday-themida = { path = "../themida" }
