@@ -1,13 +1,16 @@
 use wednesday_themida::SecureEngineSDK::*;
+use wednesday_themida_macros::themida;
 
-fn main() {
-    unsafe {
-        VM_TIGER_WHITE_START();
-    };
+#[themida(vm = "TIGER_BLACK")]
+fn something_else() {
+    println!("Something else");
+}
 
+#[themida(vm = "TIGER_WHITE")]
+fn main() -> ! {
     println!("Hello, world!");
 
-    unsafe {
-        VM_TIGER_WHITE_END();
-    };
+    something_else();
+
+    loop {}
 }

@@ -1,10 +1,10 @@
 #![no_main]
 
 #[allow(non_snake_case)]
-#[cfg(not(debug_assertions))]
+#[cfg(feature = "themida")]
 pub mod SecureEngineSDK;
 
-#[cfg(debug_assertions)]
+#[cfg(not(feature = "themida"))]
 #[allow(non_snake_case)]
 #[allow(dead_code)]
 #[allow(unused_variables)]
