@@ -7,7 +7,7 @@ pub struct Interpreter {}
 impl Interpreter {
     #[must_use]
     /// Creates a new [`Interpreter`]
-    fn new() -> Self {
+    fn _new() -> Self {
         Self::default()
     }
 }

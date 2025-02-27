@@ -1,10 +1,8 @@
-#![no_main]
-
 #[allow(non_snake_case)]
-#[cfg(feature = "themida")]
+#[cfg(feature = "virtualize")]
 pub mod SecureEngineSDK;
 
-#[cfg(not(feature = "themida"))]
+#[cfg(not(feature = "virtualize"))]
 #[allow(non_snake_case)]
 #[allow(dead_code)]
 #[allow(unused_variables)]

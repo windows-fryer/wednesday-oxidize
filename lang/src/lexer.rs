@@ -1,1 +1,1 @@
-struct Lexer {}
+struct _Lexer {}

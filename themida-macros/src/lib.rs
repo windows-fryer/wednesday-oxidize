@@ -91,6 +91,8 @@ fn parse_vm_request(vm: String, tree: TokenStream) -> TokenStream {
 
     base_tokens.extend(std::iter::once(TokenTree::Group(new_group)));
 
+    println!("{:#}", base_tokens.to_string());
+
     base_tokens
 }
 
