@@ -4,21 +4,15 @@
 use wednesday_themida::SecureEngineSDK::*;
 use wednesday_themida_macros::themida;
 
-#[themida(vm = "TIGER_RED")]
-fn test() {
-    println!("Hello, world! from TIGER_RED");
-}
+use wednesday_mem::System;
 
 #[themida(vm = "TIGER_WHITE")]
-fn main() -> ! {
-    println!("Hello, world!");
+fn main() {
+    let processes = System::processes().unwrap();
 
-    #[themida(vm = "TIGER_BLACK")]
-    {
-        println!("Hello, world! from TIGER_BLACK");
+    for process in processes {
+        let name = process.title().unwrap();
+
+        println!("{name}");
     }
-
-    test();
-
-    loop {}
 }

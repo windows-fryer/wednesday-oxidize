@@ -7,3 +7,4 @@ edition = "2024"
 wednesday-themida = { path = "../themida", features = [] }
 wednesday-themida-macros = { path = "../themida-macros" }
 
+wednesday-mem = { path = "../mem" }
